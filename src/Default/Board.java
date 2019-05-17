@@ -28,6 +28,7 @@ public class Board extends JPanel {
     //public Timer timer2;
     private Snake snake;
     private Snake snake2;
+    private Wall wall;
     private Food food;
     private SpecialFood specialFood;
     private int deltaTime;
@@ -84,27 +85,35 @@ public class Board extends JPanel {
                     }
                     break;
                 case KeyEvent.VK_A:
-                    if (snake2.getDirection() != Direction.RIGHT && !turning2) {
-                        turning2 = true;
-                        snake2.setDirection(Direction.LEFT);
+                    if (twoPlayers == true) {
+                        if (snake2.getDirection() != Direction.RIGHT && !turning2) {
+                            turning2 = true;
+                            snake2.setDirection(Direction.LEFT);
+                        }
                     }
                     break;
                 case KeyEvent.VK_D:
-                    if (snake2.getDirection() != Direction.LEFT && !turning2) {
-                        turning2 = true;
-                        snake2.setDirection(Direction.RIGHT);
+                    if (twoPlayers == true) {
+                        if (snake2.getDirection() != Direction.LEFT && !turning2) {
+                            turning2 = true;
+                            snake2.setDirection(Direction.RIGHT);
+                        }
                     }
                     break;
                 case KeyEvent.VK_W:
-                    if (snake2.getDirection() != Direction.DOWN && !turning2) {
-                        turning2 = true;
-                        snake2.setDirection(Direction.UP);
+                    if (twoPlayers == true) {
+                        if (snake2.getDirection() != Direction.DOWN && !turning2) {
+                            turning2 = true;
+                            snake2.setDirection(Direction.UP);
+                        }
                     }
                     break;
                 case KeyEvent.VK_S:
-                    if (snake2.getDirection() != Direction.UP && !turning2) {
-                        turning2 = true;
-                        snake2.setDirection(Direction.DOWN);
+                    if (twoPlayers == true) {
+                        if (snake2.getDirection() != Direction.UP && !turning2) {
+                            turning2 = true;
+                            snake2.setDirection(Direction.DOWN);
+                        }
                     }
                     break;
                 case KeyEvent.VK_P:
@@ -119,6 +128,7 @@ public class Board extends JPanel {
 
     public Board() {
         super();
+        wall = new Wall();
         snake = new Snake(Config.snakeNodes, 2);
         food = new Food();
         specialFood = new SpecialFood();
@@ -142,19 +152,25 @@ public class Board extends JPanel {
     }
 
     public void tick() {
+        levelsWalls();
+        
         if(snake.getListNodes().size()-1 < 1) {
             gameOver();
         } else {
             snake.movementSnake();
         }
-        if (snake.SnakeBodyDetected() == true || snake.BoardEgdeDetected() == true || snake.getListNodes().size()-1 < 1) {
+        
+        if (snake.SnakeBodyDetected() == true || snake.BoardEgdeDetected() == true || snake.getListNodes().size()-1 < 1 ||
+                CollisionWalls() == true || score.getScore() < 0) {
             gameOver();
         }
+        
         if (food.FoodDetected(snake.getRowHead(), snake.getColHead()) == true) {
             score.incrementScore();
             snake.addNodes(2);
             ccSpecialFood++;
         }
+        
         if (specialFood.FoodDetected(snake.getRowHead(), snake.getColHead())) {
             if (ccSpecialFood > 15) {
                 for (int i = 0; i < 5; i++) {
@@ -222,13 +238,15 @@ public class Board extends JPanel {
         turning2 = false;
         turning = false;
     }
+    
+    
 
     public boolean CollisionsBetweenSnakes() {
         int[] positionsSnakeHead = {snake.getRowHead(), snake.getColHead()};
         int[] positionsSnake2Head = {snake2.getRowHead(), snake2.getColHead()};
 
-        if (positionsSnakeHead[0] + 1 == positionsSnake2Head[0] && positionsSnakeHead[1] == positionsSnake2Head[1] - 1
-                || positionsSnake2Head[0] + 1 == positionsSnakeHead[0] && positionsSnake2Head[1] == positionsSnakeHead[0] - 1) {
+        if (positionsSnakeHead[0]+1 == positionsSnake2Head[0] && positionsSnakeHead[1]+1 == positionsSnake2Head[1]
+                || positionsSnake2Head[0]+1 == positionsSnakeHead[0] && positionsSnake2Head[1]+1 == positionsSnakeHead[0]) {
             return true;
         }
         for (int i = 1; i < snake.getListNodes().size() - 1; i++) {
@@ -240,6 +258,17 @@ public class Board extends JPanel {
         for (int i = 1; i < snake2.getListNodes().size() - 1; i++) {
             if (positionsSnakeHead[0] == snake2.getListNodes().get(i).getRow()
                     && positionsSnakeHead[1] == snake2.getListNodes().get(i).getCol()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean CollisionWalls() {
+        int[] positionsSnakeHead = {snake.getRowHead(), snake.getColHead()};
+        
+        for (int i=0; i<wall.getListWalls().size(); i++) {
+            if (positionsSnakeHead[0] == wall.getListWalls().get(i).getRow() && positionsSnakeHead[1] == wall.getListWalls().get(i).getCol()) {
                 return true;
             }
         }
@@ -258,12 +287,36 @@ public class Board extends JPanel {
         }
         timer.start();
     }
-
+    
+    public void levelsWalls() {
+        if(score.getScore() >= 0 && score.getScore() <= 20) {
+            wall.levelWalls(0);
+        } else if(score.getScore() >= 20 && score.getScore() <= 60) {
+            wall.levelWalls(1);
+        } else if(score.getScore() >= 60 && score.getScore() <= 90) {
+            wall.levelWalls(2);
+        }   else if(score.getScore() >= 90 && score.getScore() <= 130) {
+            wall.levelWalls(3);
+        }
+    }
+    
+    public void paintWallCondition(Graphics2D g2d) {
+        if(score.getScore() >= 0 && score.getScore() <= 20) {
+            wall.paintWall(g2d, getSquareWidth(), getSquareHeight());
+        } else if(score.getScore() >= 20 && score.getScore() <= 60) {
+            wall.paintWall(g2d, getSquareWidth(), getSquareHeight());
+        } else if(score.getScore() >= 60 && score.getScore() <= 90) {
+            wall.paintWall(g2d, getSquareWidth(), getSquareHeight());
+        }   else if(score.getScore() > 90) {
+            wall.paintWall(g2d, getSquareWidth(), getSquareHeight());
+        }
+    }
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         paintBoard(g2d);
+        paintWallCondition(g2d);
         snake.paintSnake(g2d, getSquareWidth(), getSquareHeight());
         if (twoPlayers == true) {
             snake2.paintSnake(g2d, getSquareWidth(), getSquareHeight());
@@ -319,6 +372,7 @@ public class Board extends JPanel {
         specialFood = new SpecialFood();
         ccSpecialFood = 0;
         score.resetScore();
+        wall = new Wall();
 
         keyAdepter = new MyKeyAdapter();
         addKeyListener(keyAdepter);

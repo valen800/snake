@@ -40,6 +40,14 @@ public class ScoreBoard extends javax.swing.JPanel {
         score = 0;
         jLabel1.setText("Score: " + score);
     }
+    
+    public int getScore() {
+        return this.score;
+    }
+    
+    public void setScore(int score) {
+        this.score = score;
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.

@@ -11,8 +11,8 @@ package Default;
  * @author alu54279423k
  */
 public class Config {
-    public static int numRows = 20;
-    public static int numCols = 20;
+    public static int numRows = 25;
+    public static int numCols = 25;
     public static int score = 0;
     public static int snakeNodes = 4;
 }
