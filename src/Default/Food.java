@@ -15,10 +15,14 @@ import java.awt.Graphics2D;
  */
 public class Food extends Node {
 
-    public Food() {
+    public Food(Snake snake, Wall wall) {
         super(0, 0);
-        int row = (int) (Math.random() * (Config.numRows - 5) + 5);
-        int col = (int) (Math.random() * (Config.numCols - 5) + 5);
+        int row;
+        int col;
+        do {
+            row = (int) (Math.random() * Config.numRows);
+            col = (int) (Math.random() * Config.numCols);
+        } while(snake.isOnSnake(row, col) && wall.isOnWall(row, col));
         setRow(row);
         setCol(col);
     }
@@ -27,12 +31,17 @@ public class Food extends Node {
         Board.drawSquare(g, squareWidth, squareHeight, getCol(), getRow(), color);
     }
 
-    public boolean FoodDetected(int rowHead, int colHead) {
+    public boolean FoodDetected(int rowHead, int colHead, Snake snake, Wall wall) {
         int[] positionsHead = {rowHead, colHead};
         int[] positionsFood = {getRow(), getCol()};
 
-        int newRowFood = (int) (Math.random() * (Config.numRows - 5) + 5);
-        int newColFood = (int) (Math.random() * (Config.numCols - 5) + 5);
+        int newRowFood;
+        int newColFood;
+        
+        do {
+            newRowFood = (int) (Math.random() * Config.numRows);
+            newColFood = (int) (Math.random() * Config.numCols);
+        } while(snake.isOnSnake(newRowFood, newColFood) && wall.isOnWall(newRowFood, newColFood));
 
         if (positionsHead[0] == positionsFood[0] && positionsHead[1] == positionsFood[1]) {
             setRow(newRowFood);

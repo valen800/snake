@@ -33,6 +33,15 @@ public class Wall extends Node {
         return this.list;
     }
     
+    public boolean isOnWall(int row, int col) {
+        for (Node node : list) {
+            if (row == node.getRow() && col == node.getCol()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public void levelWalls(int level) {
         switch (level) {
             case 3:

@@ -146,6 +146,15 @@ public class Snake {
         }
     }
     
+    public boolean isOnSnake(int row, int col) {
+        for (Node node : body) {
+            if (row == node.getRow() && col == node.getCol()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public int getRowHead() {
         return body.get(0).getRow();
     }
