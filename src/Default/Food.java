@@ -1,6 +1,5 @@
 package Default;
 
-
 import java.awt.Color;
 import java.awt.Graphics2D;
 
@@ -22,7 +21,7 @@ public class Food extends Node {
         do {
             row = (int) (Math.random() * Config.numRows);
             col = (int) (Math.random() * Config.numCols);
-        } while(snake.isOnSnake(row, col) && wall.isOnWall(row, col));
+        } while (snake.isOnSnake(row, col) || wall.isOnWall(row, col));
         setRow(row);
         setCol(col);
     }
@@ -35,15 +34,14 @@ public class Food extends Node {
         int[] positionsHead = {rowHead, colHead};
         int[] positionsFood = {getRow(), getCol()};
 
-        int newRowFood;
-        int newColFood;
-        
-        do {
-            newRowFood = (int) (Math.random() * Config.numRows);
-            newColFood = (int) (Math.random() * Config.numCols);
-        } while(snake.isOnSnake(newRowFood, newColFood) && wall.isOnWall(newRowFood, newColFood));
+        int newRowFood = 0;
+        int newColFood = 0;
 
         if (positionsHead[0] == positionsFood[0] && positionsHead[1] == positionsFood[1]) {
+            do {
+                newRowFood = (int) (Math.random() * Config.numRows);
+                newColFood = (int) (Math.random() * Config.numCols);
+            } while (snake.isOnSnake(newRowFood, newColFood) || wall.isOnWall(newRowFood, newColFood));
             setRow(newRowFood);
             setCol(newColFood);
             return true;
