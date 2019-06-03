@@ -232,7 +232,7 @@ public class Board extends JPanel {
             if (specialFood.FoodDetected(snake2.getRowHead(), snake2.getColHead(), snake2, wall)) {
                 if (ccSpecialFood > 15) {
                     for (int i = 0; i < 5; i++) {
-                        score.incrementScore();
+                        score2.incrementScore();
                     }
                     snake2.addNodes(5);
                     ccSpecialFood = 0;
@@ -405,7 +405,7 @@ public class Board extends JPanel {
         timer.start();
     }
 
-    private void reset() {
+    public void reset() {
         wall = new Wall();
         snake = new Snake(SingleObject.getSingleObject().getSnakeNodes(), 2);
         food = new Food(snake, wall);
@@ -420,7 +420,7 @@ public class Board extends JPanel {
         deltaTime = 150;
     }
 
-    private void reset2() {
+    public void reset2() {
         wall = new Wall();
         snake2 = new Snake(SingleObject.getSingleObject().getSnakeNodes(), 6);
         snake = new Snake(SingleObject.getSingleObject().getSnakeNodes(), 2);
