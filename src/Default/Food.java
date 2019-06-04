@@ -19,17 +19,17 @@ public class Food extends Node {
         int row;
         int col;
         do {
-            row = (int) (Math.random() * Config.numRows);
-            col = (int) (Math.random() * Config.numCols);
+            row = (int) (Math.random() * SingleObject.getSingleObject().getNumRows());
+            col = (int) (Math.random() * SingleObject.getSingleObject().getNumCols());
         } while (snake.isOnSnake(row, col) || wall.isOnWall(row, col));
         setRow(row);
         setCol(col);
     }
-
+    //paint food
     public void paintFood(Graphics2D g, int squareWidth, int squareHeight, Color color) {
         Board.drawSquare(g, squareWidth, squareHeight, getCol(), getRow(), color);
     }
-
+    //Prevent food from being put in a wall or body of snake and then he puts it on the board
     public boolean FoodDetected(int rowHead, int colHead, Snake snake, Wall wall) {
         int[] positionsHead = {rowHead, colHead};
         int[] positionsFood = {getRow(), getCol()};
@@ -39,8 +39,9 @@ public class Food extends Node {
 
         if (positionsHead[0] == positionsFood[0] && positionsHead[1] == positionsFood[1]) {
             do {
-                newRowFood = (int) (Math.random() * Config.numRows);
-                newColFood = (int) (Math.random() * Config.numCols);
+                System.out.println("Recolocando");
+                newRowFood = (int) (Math.random() * SingleObject.getSingleObject().getNumRows());
+                newColFood = (int) (Math.random() * SingleObject.getSingleObject().getNumCols());
             } while (snake.isOnSnake(newRowFood, newColFood) || wall.isOnWall(newRowFood, newColFood));
             setRow(newRowFood);
             setCol(newColFood);

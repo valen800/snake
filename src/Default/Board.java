@@ -41,11 +41,10 @@ public class Board extends JPanel {
     public void setScoreBoard(ScoreBoard scoreBoard) {
         this.score = scoreBoard;
     }
-
     public void setScoreBoard2(ScoreBoard scoreBoard) {
         this.score2 = scoreBoard;
     }
-
+    //boolean to set the two players mode
     public void setTwoPlayers(boolean twoPlayers) {
         this.twoPlayers = twoPlayers;
         if (twoPlayers == true) {
@@ -123,7 +122,7 @@ public class Board extends JPanel {
             repaint();
         }
     }
-
+    //Create all objects
     public Board() {
         super();
         wall = new Wall();
@@ -148,36 +147,44 @@ public class Board extends JPanel {
         });
         timer.start();
     }
-
+    //method for a singleplayer
     public void tick() {
         levelsWalls();
         gameOverConditions();
-        foodDetectedConditions();
+        allFoodDetectedConditions();
 
         repaint();
         Toolkit.getDefaultToolkit().sync();
         turning = false;
     }
-
+    //method for a two players
     public void tick2() {
         levelsWalls();
         gameOverConditions();
-        foodDetectedConditions();
-        
+        allFoodDetectedConditions();
+
         repaint();
         Toolkit.getDefaultToolkit().sync();
         turning2 = false;
         turning = false;
     }
-
-    public boolean CollisionsBetweenSnakes() {
+    //check if there has been a collision between snakes (bodys and heads)
+    public boolean collisionsBetweenSnakes() {
         int[] positionsSnakeHead = {snake.getRowHead(), snake.getColHead()};
         int[] positionsSnake2Head = {snake2.getRowHead(), snake2.getColHead()};
 
         if (positionsSnakeHead[0] + 1 == positionsSnake2Head[0] && positionsSnakeHead[1] + 1 == positionsSnake2Head[1]
-                || positionsSnake2Head[0] + 1 == positionsSnakeHead[0] && positionsSnake2Head[1] + 1 == positionsSnakeHead[0]) {
+                || positionsSnake2Head[0] + 1 == positionsSnakeHead[0] && positionsSnake2Head[1] + 1 == positionsSnakeHead[0]
+                || collisionsBetweenBodys()/*method collision body*/ == true) {
             return true;
         }
+        return false;
+    }
+    //method to check collision between bodys
+    private boolean collisionsBetweenBodys() {
+        int[] positionsSnakeHead = {snake.getRowHead(), snake.getColHead()};
+        int[] positionsSnake2Head = {snake2.getRowHead(), snake2.getColHead()};
+        
         for (int i = 1; i < snake.getListNodes().size() - 1; i++) {
             if (positionsSnake2Head[0] == snake.getListNodes().get(i).getRow()
                     && positionsSnake2Head[1] == snake.getListNodes().get(i).getCol()) {
@@ -192,130 +199,87 @@ public class Board extends JPanel {
         }
         return false;
     }
-
+    
+    //All conditions to lose the game (in a singleplayer and two players)
     private void gameOverConditions() {
         if (twoPlayers == true) {
-            if (snake.getListNodes().size() - 1 < 1 || snake2.getListNodes().size() - 1 < 1) {
-                gameOver();
-            } else {
-                snake.movementSnake();
-                snake2.movementSnake();
-            }
-            if (snake2.SnakeBodyDetected() == true || snake2.BoardEgdeDetected() == true || CollisionsBetweenSnakes() == true
-                    || snake.BoardEgdeDetected() == true || snake.SnakeBodyDetected() == true || snake.getListNodes().size() - 1 < 1 || snake2.getListNodes().size() - 1 < 1 || CollisionWalls() == true) {
+            snake.movementSnake();
+            snake2.movementSnake();
+
+            if (snake2.SnakeBodyDetected() == true
+                    || snake2.BoardEgdeDetected() == true
+                    || collisionsBetweenSnakes() == true
+                    || snake.BoardEgdeDetected() == true
+                    || snake.SnakeBodyDetected() == true
+                    || snake.getListNodes().size() - 1 < 1
+                    || snake2.getListNodes().size() - 1 < 1
+                    || wall.collisionsWall(wall, snake) == true
+                    || wall.collisionsWall(wall, snake2) == true) {
                 gameOver();
             }
         } else {
-            if (snake.getListNodes().size() - 1 < 1) {
-                gameOver();
-            } else {
-                snake.movementSnake();
-            }
-
-            if (snake.SnakeBodyDetected() == true || snake.BoardEgdeDetected() == true || snake.getListNodes().size() - 1 < 1
-                    || CollisionWalls() == true || score.getScore() < 0) {
+            snake.movementSnake();
+            if (snake.SnakeBodyDetected() == true 
+                    || snake.BoardEgdeDetected() == true 
+                    || snake.getListNodes().size() - 1 < 1
+                    || wall.collisionsWall(wall, snake) == true 
+                    || score.getScore() < 0) {
                 gameOver();
             }
         }
     }
-
-    private void foodDetectedConditions() {
+    //All conditions to eat a food and specialFood
+    private void allFoodDetectedConditions() {
         if (twoPlayers == true) {
-            if (food.FoodDetected(snake2.getRowHead(), snake2.getColHead(), snake2, wall) == true) {
-                score2.incrementScore();
-                snake2.addNodes(2);
-            }
-            if (food.FoodDetected(snake.getRowHead(), snake.getColHead(), snake, wall) == true) {
-                score.incrementScore();
-                snake.addNodes(2);
-            }
-            if (specialFood.FoodDetected(snake2.getRowHead(), snake2.getColHead(), snake2, wall)) {
-                if (ccSpecialFood > 15) {
-                    for (int i = 0; i < 5; i++) {
-                        score2.incrementScore();
-                    }
-                    snake2.addNodes(5);
-                    ccSpecialFood = 0;
-                } else {
-                    score.decreaseScore();
-                    snake2.subtractNodes(2);
-                    ccSpecialFood++;
-                }
-            }
-            if (specialFood.FoodDetected(snake.getRowHead(), snake.getColHead(), snake, wall)) {
-                if (ccSpecialFood > 15) {
-                    for (int i = 0; i < 5; i++) {
-                        score.incrementScore();
-                    }
-                    snake.addNodes(5);
-                    ccSpecialFood = 0;
-                } else {
-                    score.decreaseScore();
-                    snake.subtractNodes(2);
-                    ccSpecialFood++;
-                }
-            }
+            normalFoodConditions(snake2);
+            normalFoodConditions(snake);
+            specialFoodConditions(snake2);
+            specialFoodConditions(snake);
         } else {
-            if (food.FoodDetected(snake.getRowHead(), snake.getColHead(), snake, wall) == true) {
+            normalFoodConditions(snake);
+            specialFoodConditions(snake);
+        }
+    }
+    //if condition is true, increase score, snake nodes and increase counter of specialFood
+    private void normalFoodConditions(Snake snake) {
+        if (food.FoodDetected(snake.getRowHead(), snake.getColHead(), snake, wall) == true) {
                 score.incrementScore();
                 snake.addNodes(2);
                 ccSpecialFood++;
             }
-
-            if (specialFood.FoodDetected(snake.getRowHead(), snake.getColHead(), snake, wall)) {
-                if (ccSpecialFood > 15) {
-                    for (int i = 0; i < 5; i++) {
-                        score.incrementScore();
-                    }
-                    snake.addNodes(5);
-                    ccSpecialFood = 0;
-                } else {
-                    score.decreaseScore();
-                    snake.subtractNodes(2);
-                    ccSpecialFood++;
+    }
+    //if condition is true and counter greater than fifteen increase 5 score point and nodes,if not descrease two 
+    private void specialFoodConditions(Snake snake) {
+        if (specialFood.FoodDetected(snake.getRowHead(), snake.getColHead(), snake, wall) == true) {
+            if (ccSpecialFood > 15) {
+                for (int i = 0; i < 5; i++) {
+                    score.incrementScore();
                 }
+                snake.addNodes(5);
+                ccSpecialFood = 0;
+            } else {
+                score.decreaseScore();
+                snake.subtractNodes(2);
+                ccSpecialFood++;
             }
         }
     }
-
-    public boolean CollisionWalls() {
-
-        if (twoPlayers == true) {
-            int[] positionsSnakeHead2 = {snake2.getRowHead(), snake2.getColHead()};
-            int[] positionsSnakeHead = {snake.getRowHead(), snake.getColHead()};
-            
-            for (int i = 0; i < wall.getListWalls().size(); i++) {
-                if (positionsSnakeHead2[0] == wall.getListWalls().get(i).getRow() && positionsSnakeHead2[1] == wall.getListWalls().get(i).getCol() ||
-                        positionsSnakeHead[0] == wall.getListWalls().get(i).getRow() && positionsSnakeHead[1] == wall.getListWalls().get(i).getCol()) {
-                    return true;
-                }
-            }
-            return false;
-        } else {
-            int[] positionsSnakeHead = {snake.getRowHead(), snake.getColHead()};
-            
-            for (int i = 0; i < wall.getListWalls().size(); i++) {
-                if (positionsSnakeHead[0] == wall.getListWalls().get(i).getRow() && positionsSnakeHead[1] == wall.getListWalls().get(i).getCol()) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
+    //message GAME OVER and reset all.
     private void gameOver() {
         timer.stop();
-        JOptionPane.showMessageDialog(null, "Game Over, press Ok to continue");
         if (twoPlayers == true) {
+            JOptionPane.showMessageDialog(null, "GAME OVER" + "\n" +"Player 1: " +score.getScore()
+            + "\n" + "Player2: " + score2.getScore());
             reset2();
             score2.resetScore();
             score.resetScore();
         } else {
+            JOptionPane.showMessageDialog(null, "GAME OVER" + "\n" +"Player 1: " +score.getScore());
             reset();
         }
         timer.start();
     }
-
+    //Conditions for levels of walls to appear
     public void levelsWalls() {
         if (score.getScore() >= 0 && score.getScore() <= 20) {
             wall.levelWalls(0);
@@ -328,10 +292,9 @@ public class Board extends JPanel {
 
         } else if (score.getScore() >= 90 && score.getScore() <= 130) {
             wall.levelWalls(3);
-
         }
     }
-
+    //Conditions for levels of walls to paint
     public void paintWallCondition(Graphics2D g2d) {
         if (wall != null && score != null) {
             if (score.getScore() >= 0 && score.getScore() <= 20) {
@@ -349,7 +312,7 @@ public class Board extends JPanel {
         }
 
     }
-
+    //paint all objects into board
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -367,7 +330,7 @@ public class Board extends JPanel {
             specialFood.paintFood(g2d, getSquareWidth(), getSquareHeight(), Color.PINK);
         }
     }
-
+    
     public int getSquareWidth() {
         return getWidth() / SingleObject.getSingleObject().getNumCols();
     }
@@ -375,7 +338,7 @@ public class Board extends JPanel {
     public int getSquareHeight() {
         return getHeight() / SingleObject.getSingleObject().getNumRows();
     }
-
+    
     public void paintBoard(Graphics2D g2d) {
         for (int row = 0; row < SingleObject.getSingleObject().getNumRows(); row++) {
             for (int col = 0; col < SingleObject.getSingleObject().getNumCols(); col++) {
@@ -404,7 +367,7 @@ public class Board extends JPanel {
         JOptionPane.showMessageDialog(null, "Pause, press OK");
         timer.start();
     }
-
+    //Create all the other time to start over (singleplayer)
     public void reset() {
         wall = new Wall();
         snake = new Snake(SingleObject.getSingleObject().getSnakeNodes(), 2);
@@ -419,11 +382,11 @@ public class Board extends JPanel {
 
         deltaTime = 150;
     }
-
+    //Create all the other time to start over (Two players)
     public void reset2() {
-        wall = new Wall();
         snake2 = new Snake(SingleObject.getSingleObject().getSnakeNodes(), 6);
         snake = new Snake(SingleObject.getSingleObject().getSnakeNodes(), 2);
+        wall = new Wall();
         specialFood = new SpecialFood(snake, wall);
         food = new Food(snake, wall);
         ccSpecialFood = 0;
@@ -432,6 +395,5 @@ public class Board extends JPanel {
         addKeyListener(keyAdepter);
         setFocusable(true);
         deltaTime = 150;
-
     }
 }

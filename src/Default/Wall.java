@@ -22,17 +22,17 @@ public class Wall extends Node {
         super(0, 0);
         list = new ArrayList<>();
     }
-
+    //paint wall
     public void paintWall(Graphics2D g, int squareWidth, int squareHeight) {
         for (Node node : list) {
             Board.drawSquare(g, squareWidth, squareHeight, node.getCol(), node.getRow(), Color.WHITE);
         }
     }
-    
+    //retrurn list of walls
     public List<Node> getListWalls() {
         return this.list;
     }
-    
+    //return true if node are in the same position of wall
     public boolean isOnWall(int row, int col) {
         for (Node node : list) {
             if (row == node.getRow() && col == node.getCol()) {
@@ -41,7 +41,18 @@ public class Wall extends Node {
         }
         return false;
     }
-    
+    //Check if there is a collison between the wall and the snake's head
+    public boolean collisionsWall(Wall wall, Snake snake) {
+        int[] positionsSnakeHead = {snake.getRowHead(), snake.getColHead()};
+
+        for (int i = 0; i < wall.getListWalls().size(); i++) {
+            if (positionsSnakeHead[0] == wall.getListWalls().get(i).getRow() && positionsSnakeHead[1] == wall.getListWalls().get(i).getCol()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    //All walls in levels to add in list and paint in the board.
     public void levelWalls(int level) {
         switch (level) {
             case 3:
